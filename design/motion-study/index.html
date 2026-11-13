@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Дизайнерський motion study Marline: піксельний персонаж і зв'язок бізнес-процесів.">
+    <title>Marline — демонстрація руху</title>
+    <script>
+      document.documentElement.dataset.version = new URLSearchParams(window.location.search).get('version') === 'b' ? 'b' : 'a';
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./motion.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Перейти до змісту</a>
+    <header class="site-header shell">
+      <a class="wordmark" href="#main" aria-label="Marline — початок">
+        <span class="brand-pixel" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <span>marline</span>
+      </a>
+      <nav class="main-nav" aria-label="Основна навігація">
+        <a href="#approach">Підхід</a>
+        <a href="#solutions">Рішення</a>
+        <a href="#process">Як працюємо</a>
+      </nav>
+      <a class="header-action" href="#conversation">Обговорити проєкт</a>
+    </header>
+
+    <aside class="study-tools shell" aria-label="Керування дизайнерською демонстрацією">
+      <p>Дизайн-концепція <span>· демонстрація руху</span></p>
+      <nav class="version-switch" aria-label="Версія дизайну">
+        <a class="version-link" data-version-link="a" href="?version=a">A — Світла</a>
+        <a class="version-link" data-version-link="b" href="?version=b">B — Театральна</a>
+      </nav>
+      <div class="study-actions">
+        <button class="study-button" id="replay-intro" type="button" disabled>Повторити вступ</button>
+        <button class="study-button motion-toggle" id="reduce-motion" type="button" aria-pressed="false">Менше руху</button>
+      </div>
+      <span class="study-status" id="motion-status" role="status">Статичний перегляд</span>
+    </aside>
+
+    <main id="main">
+      <section class="hero shell" aria-labelledby="hero-title">
+        <div class="hero-backdrop-wordmark" aria-hidden="true">Marline</div>
+        <div class="hero-copy">
+          <p class="hero-intro">Розробка, що розуміє ваш бізнес</p>
+          <h1 id="hero-title">Спочатку бізнес.<br>Потім — код.</h1>
+          <p class="hero-description">Занурюємося у ваші процеси й створюємо цифрові рішення, які допомагають бізнесу працювати краще.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#conversation">Обговорити проєкт</a>
+            <a class="text-link" href="#approach">Наш підхід<span aria-hidden="true">↓</span></a>
+          </div>
+          <p class="hero-note">Від першої ідеї до системи,<br>на якій працює компанія.</p>
+        </div>
+        <div class="portrait-stage" id="portrait-stage">
+          <div class="pixel-stage" aria-hidden="true"></div>
+          <span class="stage-pixel stage-pixel-one" aria-hidden="true"></span>
+          <span class="stage-pixel stage-pixel-two" aria-hidden="true"></span>
+          <span class="stage-pixel stage-pixel-three" aria-hidden="true"></span>
+          <span class="stage-pixel stage-pixel-four" aria-hidden="true"></span>
+          <div class="portrait-media" id="portrait-media">
+            <img id="marilyn-portrait" src="../../assets/mascot/marilyn-pixel-v1.png" alt="Піксельний портрет Мерилін Монро — персонаж Marline" width="1240" height="1254" fetchpriority="high" decoding="async">
+            <canvas id="portrait-canvas" aria-hidden="true"></canvas>
+          </div>
+          <div class="portrait-signature" aria-hidden="true"><span></span>Характер у кожній деталі.</div>
+        </div>
+      </section>
+
+      <section class="approach shell" id="approach" aria-labelledby="approach-title">
+        <div class="section-heading">
+          <h2 id="approach-title">Розбираємося в деталях.<br>Бачимо систему.</h2>
+          <p>Починаємо з того, як працює ваш бізнес: люди, щоденні дії, обмеження й цілі. Знаходимо, що варто спростити, автоматизувати або створити з нуля.</p>
+        </div>
+        <ol class="process-flow" id="process" aria-label="Як ми працюємо">
+          <li>
+            <span class="process-node" aria-hidden="true"></span>
+            <span class="step-number">01</span>
+            <h3>Занурюємося</h3>
+            <p>Розуміємо контекст, людей і задачу.</p>
+          </li>
+          <li>
+            <span class="process-node" aria-hidden="true"></span>
+            <span class="step-number">02</span>
+            <h3>Проєктуємо</h3>
+            <p>Знаходимо логіку майбутнього рішення.</p>
+          </li>
+          <li>
+            <span class="process-node" aria-hidden="true"></span>
+            <span class="step-number">03</span>
+            <h3>Розробляємо</h3>
+            <p>Перетворюємо задум на робочий продукт.</p>
+          </li>
+          <li>
+            <span class="process-node" aria-hidden="true"></span>
+            <span class="step-number">04</span>
+            <h3>Розвиваємо</h3>
+            <p>Покращуємо рішення разом із бізнесом.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="solutions shell" id="solutions" aria-labelledby="solutions-title">
+        <div class="solutions-heading">
+          <h2 id="solutions-title">Рішення під<br>ваш бізнес.</h2>
+          <p>Масштаб визначає задача.</p>
+        </div>
+        <div class="solution-list">
+          <article class="solution-row">
+            <div class="solution-mark mark-product" aria-hidden="true"><i></i><i></i><i></i></div>
+            <h3>Сайти та цифрові продукти</h3>
+            <p>Від першої сторінки до складних вебсервісів.</p>
+          </article>
+          <article class="solution-row">
+            <div class="solution-mark mark-system" aria-hidden="true"><i></i><i></i><i></i></div>
+            <h3>Внутрішні системи</h3>
+            <p>Інструменти для команди, клієнтів і щоденних операцій.</p>
+          </article>
+          <article class="solution-row">
+            <div class="solution-mark mark-connect" aria-hidden="true"><i></i><i></i><i></i></div>
+            <h3>Автоматизація та інтеграції</h3>
+            <p>Поєднуємо сервіси й прибираємо повторювану ручну роботу.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="conversation" id="conversation" aria-labelledby="conversation-title">
+        <div class="shell conversation-inner">
+          <div>
+            <h2 id="conversation-title">Є процес, який<br>хочеться змінити?</h2>
+            <p>Розкажіть, що ви хочете створити або покращити.</p>
+          </div>
+          <div class="conversation-action">
+            <span class="conversation-pixels" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <a class="button button-light" href="#study-note">Обговорити проєкт</a>
+          </div>
+          <footer class="site-footer">
+            <span class="footer-wordmark">marline</span>
+            <p id="study-note">Це дизайнерська демонстрація. Сценарій зв’язку з компанією ще проєктуємо.</p>
+          </footer>
+        </div>
+      </section>
+    </main>
+    <div class="motion-trail" id="motion-trail" aria-hidden="true"></div>
+    <script>
+      document.querySelectorAll('[data-version-link]').forEach(link => {
+        if (link.dataset.versionLink === document.documentElement.dataset.version) link.setAttribute('aria-current', 'page');
+      });
+    </script>
+  </body>
+</html>
