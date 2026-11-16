@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#F7F8FC">
+    <meta name="description" content="Marline — розробка сайтів, цифрових продуктів і внутрішніх систем. Занурюємося в бізнес-процеси, автоматизуємо та вдосконалюємо їх.">
+    <title>Marline — вау-сцена (демо)</title>
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../assets/fonts/fonts.css">
+    <link rel="stylesheet" href="../../src/site.css">
+    <link rel="stylesheet" href="./wow.css">
+    <meta name="robots" content="noindex">
+    <script src="../../src/site.js" defer></script>
+    <script src="./wow.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#hero-title">Перейти до змісту</a>
+
+    <header class="site-header" id="site-header">
+      <div class="header-inner shell">
+        <a class="wordmark" href="#main" aria-label="Marline — на початок">
+          <span class="brand-pixel" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span>marline</span>
+        </a>
+        <nav class="site-navigation" aria-label="Основна">
+          <button class="menu-toggle" id="menu-toggle" type="button" popovertarget="main-nav" popovertargetaction="toggle" aria-controls="main-nav" aria-expanded="false">
+            <span>Меню</span>
+            <span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+          </button>
+          <ul class="main-nav" id="main-nav" popover="auto">
+            <li><a href="#solutions">Рішення</a></li>
+            <li><a href="#approach">Підхід</a></li>
+            <li><a href="#questions">Запитання</a></li>
+            <li class="menu-contact"><a href="#contact">Обговорити проєкт</a></li>
+          </ul>
+        </nav>
+        <a class="header-action" href="#contact">Обговорити проєкт</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero shell" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="hero-intro">Розробка, що розуміє ваш бізнес</p>
+          <h1 id="hero-title" tabindex="-1">Спочатку бізнес.<br>Потім — код.</h1>
+          <p class="hero-description">Занурюємося у ваші процеси й створюємо цифрові рішення, які допомагають бізнесу працювати краще.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#contact">Обговорити проєкт</a>
+            <a class="text-link" href="#approach">Наш підхід<span aria-hidden="true">↓</span></a>
+          </div>
+          <p class="hero-note">Від окремої задачі до системи,<br>на якій працює компанія.</p>
+        </div>
+
+        <div class="portrait-stage" id="portrait-stage">
+          <div class="pixel-stage" aria-hidden="true"></div>
+          <span class="stage-pixel stage-pixel-one" aria-hidden="true"></span>
+          <span class="stage-pixel stage-pixel-two" aria-hidden="true"></span>
+          <span class="stage-pixel stage-pixel-three" aria-hidden="true"></span>
+          <span class="stage-pixel stage-pixel-four" aria-hidden="true"></span>
+          <div class="portrait-media" id="portrait-media">
+            <img id="marilyn-portrait" src="../../assets/mascot/marilyn-pixel-v1.png" alt="Піксельна Мерилін Монро — персонаж Marline" width="1254" height="1254" fetchpriority="high" decoding="async">
+            <canvas id="portrait-canvas" aria-hidden="true"></canvas>
+          </div>
+          <p class="portrait-signature" aria-hidden="true"><span></span>Характер у кожній деталі.</p>
+        </div>
+        <svg class="wind-ribbon" id="wind-ribbon" aria-hidden="true" focusable="false"></svg>
+      </section>
+
+      <section class="solutions section shell" id="solutions" aria-labelledby="solutions-title">
+        <div class="section-heading solutions-heading">
+          <h2 id="solutions-title">Рішення під<br>ваш бізнес.</h2>
+          <p>Масштаб визначає задача. Спочатку розуміємо її, потім обираємо інструменти.</p>
+        </div>
+
+        <div class="service-list">
+          <details class="service accordion" data-accordion open>
+            <summary>
+              <span class="service-symbol symbol-product" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="service-title">Сайти та цифрові продукти</span>
+              <span class="service-short">Від першої сторінки до складних вебсервісів.</span>
+              <span class="disclosure-icon" aria-hidden="true"></span>
+            </summary>
+            <div class="accordion-body service-body">
+              <p>Створюємо цифрові точки взаємодії між бізнесом і людьми. Продумуємо структуру, сценарії та функції відповідно до задачі.</p>
+              <ul class="service-examples" role="list" aria-label="Приклади можливих задач">
+                <li>Сайти компаній і продуктів</li>
+                <li>Особисті кабінети</li>
+                <li>Вебсервіси</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="service accordion" data-accordion>
+            <summary>
+              <span class="service-symbol symbol-system" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="service-title">Внутрішні системи</span>
+              <span class="service-short">Інструменти для команди та щоденних операцій.</span>
+              <span class="disclosure-icon" aria-hidden="true"></span>
+            </summary>
+            <div class="accordion-body service-body">
+              <p>Допомагаємо впорядкувати роботу, дані та взаємодію команди. Проєктуємо систему навколо реальних процесів, а не навпаки.</p>
+              <ul class="service-examples" role="list" aria-label="Приклади можливих задач">
+                <li>Облік замовлень і даних</li>
+                <li>Робота з документами</li>
+                <li>Інструменти команди</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="service accordion" data-accordion>
+            <summary>
+              <span class="service-symbol symbol-connect" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="service-title">Автоматизація та інтеграції</span>
+              <span class="service-short">Менше повторюваної ручної роботи.</span>
+              <span class="disclosure-icon" aria-hidden="true"></span>
+            </summary>
+            <div class="accordion-body service-body">
+              <p>Поєднуємо сервіси та допомагаємо даним рухатися між ними. Знаходимо повторювані дії, які доцільно передати системі.</p>
+              <ul class="service-examples" role="list" aria-label="Приклади можливих задач">
+                <li>Поєднання сервісів</li>
+                <li>Передавання даних</li>
+                <li>Автоматизація операцій</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="service accordion" data-accordion>
+            <summary>
+              <span class="service-symbol symbol-evolve" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="service-title">Розвиток готових рішень</span>
+              <span class="service-short">Наступний крок для того, що вже працює.</span>
+              <span class="disclosure-icon" aria-hidden="true"></span>
+            </summary>
+            <div class="accordion-body service-body">
+              <p>Вивчаємо наявне рішення, його контекст і обмеження. Визначаємо, що варто зберегти, змінити або поступово покращити.</p>
+              <ul class="service-examples" role="list" aria-label="Приклади можливих задач">
+                <li>Аудит поточного рішення</li>
+                <li>Нові сценарії та функції</li>
+                <li>Поступові покращення</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="approach section shell" id="approach" aria-labelledby="approach-title">
+        <div class="section-heading">
+          <h2 id="approach-title">Розбираємося в деталях.<br>Бачимо систему.</h2>
+          <p>Починаємо з того, як працює ваш бізнес: люди, щоденні дії, обмеження й цілі. Знаходимо, що варто спростити, автоматизувати або створити з нуля.</p>
+        </div>
+
+        <div class="process" id="process" data-initial-step="0">
+          <div class="process-tabs" id="process-tabs" hidden>
+            <span class="process-current" id="process-current" aria-hidden="true"></span>
+            <button class="process-tab" id="process-tab-1" type="button" data-step="0" aria-selected="true">
+              <span class="process-node" aria-hidden="true"></span>
+              <span class="step-number">01</span><span class="step-name">Занурюємося</span>
+            </button>
+            <button class="process-tab" id="process-tab-2" type="button" data-step="1" aria-selected="false">
+              <span class="process-node" aria-hidden="true"></span>
+              <span class="step-number">02</span><span class="step-name">Проєктуємо</span>
+            </button>
+            <button class="process-tab" id="process-tab-3" type="button" data-step="2" aria-selected="false">
+              <span class="process-node" aria-hidden="true"></span>
+              <span class="step-number">03</span><span class="step-name">Розробляємо</span>
+            </button>
+            <button class="process-tab" id="process-tab-4" type="button" data-step="3" aria-selected="false">
+              <span class="process-node" aria-hidden="true"></span>
+              <span class="step-number">04</span><span class="step-name">Розвиваємо</span>
+            </button>
+          </div>
+
+          <div class="process-panels" id="process-panels">
+            <section class="process-panel" id="process-panel-1" aria-labelledby="process-heading-1">
+              <div class="process-description">
+                <h3 id="process-heading-1"><span class="fallback-number">01.</span> Занурюємося</h3>
+                <p>Визначаємо цілі, користувачів, обмеження та поточний процес. Ставимо запитання й розбираємося, як усе працює зараз.</p>
+              </div>
+              <div class="process-result"><span>Результат кроку</span><p>Спільне розуміння задачі й того, що має змінитися.</p></div>
+            </section>
+            <section class="process-panel" id="process-panel-2" aria-labelledby="process-heading-2">
+              <div class="process-description">
+                <h3 id="process-heading-2"><span class="fallback-number">02.</span> Проєктуємо</h3>
+                <p>Погоджуємо структуру, сценарії та пріоритети. Перевіряємо логіку рішення до того, як переходити до розробки.</p>
+              </div>
+              <div class="process-result"><span>Результат кроку</span><p>Зрозуміла структура рішення та погоджені пріоритети.</p></div>
+            </section>
+            <section class="process-panel" id="process-panel-3" aria-labelledby="process-heading-3">
+              <div class="process-description">
+                <h3 id="process-heading-3"><span class="fallback-number">03.</span> Розробляємо</h3>
+                <p>Втілюємо погоджене рішення й перевіряємо основні сценарії. Зберігаємо зв’язок між технічною роботою та бізнес-задачею.</p>
+              </div>
+              <div class="process-result"><span>Результат кроку</span><p>Робоче рішення, яке можна перевірити у потрібних сценаріях.</p></div>
+            </section>
+            <section class="process-panel" id="process-panel-4" aria-labelledby="process-heading-4">
+              <div class="process-description">
+                <h3 id="process-heading-4"><span class="fallback-number">04.</span> Розвиваємо</h3>
+                <p>Враховуємо зворотний зв’язок і зміну задач бізнесу. Визначаємо, які наступні покращення мають сенс.</p>
+              </div>
+              <div class="process-result"><span>Результат кроку</span><p>Наступні пріоритети, що відповідають реальній роботі бізнесу.</p></div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="questions section shell" id="questions" aria-labelledby="questions-title">
+        <div class="questions-intro">
+          <h2 id="questions-title">До першої<br>розмови.</h2>
+          <p>Не обов’язково мати всі відповіді, щоб почати.</p>
+          <span class="question-pixels" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        </div>
+        <div class="question-list">
+          <details class="question accordion" data-accordion>
+            <summary><span>Що робити, якщо ще немає готового ТЗ?</span><span class="disclosure-icon" aria-hidden="true"></span></summary>
+            <div class="accordion-body question-body"><p>Почнемо з контексту: яку задачу ви хочете вирішити, для кого й що відбувається зараз. Цілі та процеси допоможуть поступово сформувати вимоги до рішення.</p></div>
+          </details>
+          <details class="question accordion" data-accordion>
+            <summary><span>Чи можна почати з невеликої задачі?</span><span class="disclosure-icon" aria-hidden="true"></span></summary>
+            <div class="accordion-body question-body"><p>Так. Масштаб визначає задача: це може бути окрема функція, процес або перша версія продукту. Спочатку з’ясуємо, який обсяг має сенс саме зараз.</p></div>
+          </details>
+          <details class="question accordion" data-accordion>
+            <summary><span>А якщо система вже існує?</span><span class="disclosure-icon" aria-hidden="true"></span></summary>
+            <div class="accordion-body question-body"><p>Спочатку вивчаємо її поточну роботу та обмеження. Разом визначаємо, що варто змінювати, що зберегти та як рухатися далі.</p></div>
+          </details>
+          <details class="question accordion" data-accordion>
+            <summary><span>Що підготувати до першої розмови?</span><span class="disclosure-icon" aria-hidden="true"></span></summary>
+            <div class="accordion-body question-body"><p>Коротко опишіть ідею або поточну проблему, майбутніх користувачів і очікуваний результат. Якщо є приклади процесу чи наявного рішення, вони допоможуть зрозуміти контекст.</p></div>
+          </details>
+        </div>
+      </section>
+
+      <section class="contact" id="contact" aria-labelledby="contact-title">
+        <div class="contact-inner shell">
+          <div class="contact-copy">
+            <h2 id="contact-title">Є процес, який<br>хочеться змінити?</h2>
+            <p>Почнімо з того, що для вас важливо.</p>
+          </div>
+          <div class="contact-placeholder">
+            <span class="contact-pixels" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <p class="contact-status"><span aria-hidden="true"></span>Контакти незабаром</p>
+            <p>Невдовзі тут з’явиться зручний спосіб зв’язатися з командою.</p>
+          </div>
+
+          <footer class="site-footer" role="contentinfo">
+            <a class="footer-wordmark" href="#main" aria-label="Marline — на початок">marline</a>
+            <p class="copyright">© 2026 Marline</p>
+            <div class="motion-preference">
+              <button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false" aria-describedby="motion-note" hidden><span class="motion-toggle-mark" aria-hidden="true"></span>Менше руху</button>
+              <span class="motion-note" id="motion-note" role="status"></span>
+            </div>
+            <a class="back-top" href="#main">Догори<span aria-hidden="true">↑</span></a>
+          </footer>
+        </div>
+      </section>
+    </main>
+    <div class="motion-trail" id="motion-trail" aria-hidden="true"></div>
+
+    <aside class="study-panel" aria-label="Панель демо">
+      <p class="study-title">Демо вау-сцени</p>
+      <div class="study-actions">
+        <button type="button" id="study-replay">Повторити сцену</button>
+        <button type="button" id="study-gust">Порив вітру</button>
+      </div>
+      <p class="study-status" id="study-status" role="status">Завантаження…</p>
+    </aside>
+  </body>
+</html>
