@@ -4,14 +4,12 @@
   const portrait = document.getElementById('marilyn-portrait');
   const media = document.getElementById('portrait-media');
   const canvas = document.getElementById('portrait-canvas');
-  const stage = document.getElementById('portrait-stage');
-  const trail = document.getElementById('motion-trail');
-  const nodes = [...document.querySelectorAll('.process-node')];
+  const corner = document.getElementById('case-corner');
   const replay = document.getElementById('replay-intro');
   const reduce = document.getElementById('reduce-motion');
   const status = document.getElementById('motion-status');
 
-  if (!portrait || !media || !canvas || !stage || !trail || !replay || !reduce || !status) return;
+  if (!portrait || !media || !canvas || !replay || !reduce || !status) return;
 
   const context = canvas.getContext('2d');
   const systemMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -27,10 +25,9 @@
   let elapsed = 0;
   let previousTime = null;
   let entryFrame = 0;
-  let scrollFrame = 0;
   let dimensions = null;
   let tiles = [];
-  let geometry = null;
+  let departure = Infinity;
   let dpr = 1;
 
   const reduced = () => manualReduction || systemMotion.matches;
@@ -118,11 +115,16 @@
     cancelEntryFrame();
     media.classList.remove('is-assembling');
     media.dataset.entryState = 'settled';
+    document.documentElement.classList.remove('intro-playing');
   }
 
   function tick(time) {
     entryFrame = 0;
     if (!playing || document.hidden || reduced()) return;
+    if (window.scrollY > departure) {
+      settle();
+      return;
+    }
     if (previousTime !== null) elapsed += Math.min(time - previousTime, 100);
     previousTime = time;
     const progress = clamp(elapsed / DURATION);
@@ -149,85 +151,65 @@
     playing = true;
     elapsed = 0;
     media.dataset.entryState = 'playing';
+    document.documentElement.classList.add('intro-playing');
     measureCanvas();
     drawEntry(0);
     media.classList.add('is-assembling');
     queueEntryFrame();
   }
 
-  const particles = Array.from({ length: 12 }, (_, index) => {
-    const element = document.createElement('span');
-    element.className = 'travel-pixel';
-    trail.append(element);
-    return { element, target: index % Math.max(nodes.length, 1), index };
-  });
+  // Seven opaque, 24px crops follow the outside of the right shoulder in the 1254px artwork.
+  // Both the cutouts and the moving surfaces use this same source grid.
+  const cropSize = 24;
+  const crops = [[1032, 1008], [1008, 1032], [1008, 1056], [992, 1080],
+    [960, 1104], [936, 1128], [936, 1152]];
+  const pixels = corner ? Array.from(corner.children) : [];
+  const nativeTransfer = pixels.length === crops.length &&
+    CSS.supports('animation-timeline: scroll(root block)') &&
+    CSS.supports('animation-range: 0px 100px') && CSS.supports('mask-image: linear-gradient(black,black)');
 
-  function measureTrail() {
-    const stageBounds = stage.getBoundingClientRect();
-    const scrollY = window.scrollY;
-    const scrollX = window.scrollX;
-    const targets = nodes.map(node => {
-      const bounds = node.getBoundingClientRect();
-      return { x: bounds.left + bounds.width / 2 + scrollX, y: bounds.top + bounds.height / 2 + scrollY };
+  function prepareTransfer() {
+    if (!nativeTransfer) return;
+    const { naturalWidth: width, naturalHeight: height } = portrait;
+    const holes = crops.map(([x, y]) => `M${x} ${y}h${cropSize}v${cropSize}h-${cropSize}z`).join('');
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}"><path fill-rule="evenodd" d="M0 0H${width}V${height}H0z${holes}"/></svg>`;
+    portrait.style.setProperty('--cutouts', `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+    pixels.forEach((pixel, index) => {
+      const [x, y] = crops[index];
+      // CSS percentages for background-position refer to the unused image space.
+      pixel.style.setProperty('--crop-position', `${100*x/(width-cropSize)}% ${100*y/(height-cropSize)}%`);
+      pixel.style.setProperty('--crop-size', `${100*width/cropSize}% ${100*height/cropSize}%`);
+      pixel.style.setProperty('--crop-image', `url("${portrait.currentSrc}")`);
     });
-    const source = {
-      x: stageBounds.left + stageBounds.width * .62 + scrollX,
-      y: stageBounds.top + stageBounds.height * .87 + scrollY,
-    };
-    const firstTarget = targets[0];
-    const approachBounds = document.getElementById('approach')?.getBoundingClientRect();
-    const routeX = Math.min(document.documentElement.clientWidth - 18, (approachBounds?.right ?? stageBounds.right) + 18) + scrollX;
-    geometry = firstTarget ? {
-      source,
-      targets,
-      routeX,
-      start: Math.max(0, source.y - window.innerHeight * .92),
-      end: Math.max(source.y - window.innerHeight * .92 + 140, firstTarget.y - window.innerHeight * .48),
-    } : null;
-    updateTrail();
+    measureTransfer();
   }
 
-  function updateTrail() {
-    scrollFrame = 0;
-    if (!geometry || reduced() || document.hidden) {
-      for (const { element } of particles) element.style.opacity = '0';
-      return;
-    }
-    const progress = clamp((window.scrollY - geometry.start) / (geometry.end - geometry.start));
-    for (const { element, target, index } of particles) {
-      const destination = geometry.targets[target];
-      const delay = (index % 3) * .07;
-      const phase = clamp((progress - delay) / (1 - delay));
-      const spread = (Math.floor(index / 4) - 1) * 3;
-      const gutterX = geometry.routeX + spread;
-      const turnY = geometry.source.y + 38 + spread;
-      const railY = destination.y - 26 + spread;
-      let x;
-      let y;
-      // Route through the outside gutter, then above the process rail.
-      // The pixels never sweep across the hero CTA or section copy.
-      if (phase < .22) {
-        const segment = smooth(phase / .22);
-        x = geometry.source.x + (gutterX - geometry.source.x) * segment;
-        y = geometry.source.y + (turnY - geometry.source.y) * segment;
-      } else if (phase < .6) {
-        const segment = smooth((phase - .22) / .38);
-        x = gutterX;
-        y = turnY + (railY - turnY) * segment;
-      } else {
-        const segment = smooth((phase - .6) / .4);
-        x = gutterX + (destination.x - gutterX) * segment;
-        y = railY + (destination.y - railY) * smooth(clamp((segment - .83) / .17));
-      }
-      const alpha = smooth(clamp(phase / .14)) * smooth(clamp((1 - phase) / .13));
-      element.style.transform = `translate3d(${x - 5}px, ${y - 5}px, 0)`;
-      element.style.opacity = String(alpha * .78);
-    }
-  }
-
-  function queueTrailUpdate() {
-    if (scrollFrame || document.hidden || reduced()) return;
-    scrollFrame = requestAnimationFrame(updateTrail);
+  function measureTransfer() {
+    if (!nativeTransfer || !dimensions || !ready) return;
+    const bounds = media.getBoundingClientRect();
+    const landing = corner.getBoundingClientRect();
+    const { x: insetX, y: insetY, fit } = dimensions;
+    const originTop = bounds.top + insetY + crops[0][1] * fit + window.scrollY;
+    departure = Math.max(0, originTop - window.innerHeight * .73);
+    const arrival = Math.max(departure + 120, landing.top + window.scrollY - window.innerHeight * .49);
+    const span = arrival - departure;
+    const compact = window.innerWidth <= 700;
+    const theatrical = document.documentElement.dataset.version === 'b';
+    pixels.forEach((pixel, index) => {
+      const [cx, cy] = crops[index];
+      const x = bounds.left + insetX + cx * fit - landing.left - pixel.offsetLeft;
+      const y = bounds.top + insetY + cy * fit - landing.top - pixel.offsetTop;
+      const stagger = index / (pixels.length - 1);
+      pixel.style.setProperty('--dx', `${x}px`);
+      pixel.style.setProperty('--dy', `${y}px`);
+      pixel.style.setProperty('--source-scale', String(cropSize * fit / parseFloat(getComputedStyle(pixel).width)));
+      // A slight bow separates the silhouettes in flight. On narrow screens keep it in the gutter.
+      const bow = compact ? 7 : theatrical ? 70 : 24;
+      pixel.style.setProperty('--bow', `${bow * (.35 + stagger)}px`);
+      pixel.style.setProperty('--leave', `${departure + span * stagger * .15}px`);
+      pixel.style.setProperty('--land', `${arrival - span * (1 - stagger) * .16}px`);
+    });
+    document.documentElement.classList.add('transfer-ready');
   }
 
   function updateControls() {
@@ -239,7 +221,6 @@
     replay.disabled = limited || !ready || !context;
     status.textContent = failed ? 'Зображення не завантажено' : limited || !context ? 'Статичний перегляд' : ready ? 'Рух увімкнено' : 'Завантаження персонажа';
     if (limited) settle();
-    updateTrail();
   }
 
   function imageReady() {
@@ -247,7 +228,7 @@
     ready = true;
     createTiles();
     measureCanvas();
-    measureTrail();
+    prepareTransfer();
     updateControls();
     startEntry();
   }
@@ -264,21 +245,17 @@
   reduce.addEventListener('click', () => {
     manualReduction = !manualReduction;
     updateControls();
-    if (!reduced()) measureTrail();
   });
   systemMotion.addEventListener('change', updateControls);
-  window.addEventListener('scroll', queueTrailUpdate, { passive: true });
   window.addEventListener('resize', () => {
     measureCanvas();
-    measureTrail();
+    measureTransfer();
   }, { passive: true });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       cancelEntryFrame();
-      if (scrollFrame) cancelAnimationFrame(scrollFrame);
-      scrollFrame = 0;
     } else {
-      measureTrail();
+      measureTransfer();
       queueEntryFrame();
     }
   });
@@ -286,14 +263,14 @@
   if ('ResizeObserver' in window) {
     const observer = new ResizeObserver(() => {
       measureCanvas();
-      measureTrail();
+      measureTransfer();
     });
     observer.observe(media);
-    const process = document.getElementById('process');
-    if (process) observer.observe(process);
+    if (corner) observer.observe(corner);
+    observer.observe(document.body);
   }
   if (document.fonts?.ready) {
-    document.fonts.ready.then(measureTrail).catch(() => {});
+    document.fonts.ready.then(measureTransfer).catch(() => {});
   }
   updateControls();
   if (portrait.complete && portrait.naturalWidth) imageReady();

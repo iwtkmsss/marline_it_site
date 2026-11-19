@@ -1,0 +1,56 @@
+/* The seven static corner cells are the landing slots. Moving them leaves the card interactive. */
+#case-corner { pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  html.transfer-ready:not([data-case-transfer]):not([data-reduced-motion="true"]) #marilyn-portrait,
+  html.case-departed:not([data-reduced-motion="true"]) #portrait-media {
+    mask: var(--cutouts) center / contain no-repeat;
+  }
+  html.transfer-ready:not([data-reduced-motion="true"]) #case-corner > i {
+    transform-origin: top left;
+    animation-name: transfer-horizontal, transfer-vertical;
+    animation-timing-function: cubic-bezier(.30,.12,.26,1), cubic-bezier(.36,.18,.46,1);
+    animation-fill-mode: both;
+    animation-duration: auto;
+    animation-timeline: scroll(root block);
+    animation-range: var(--leave) var(--land);
+  }
+  html.transfer-ready[data-version="b"]:not([data-reduced-motion="true"]) #case-corner > i {
+    animation-timing-function: cubic-bezier(.54,.02,.33,1), cubic-bezier(.22,.4,.48,1);
+  }
+  html.transfer-ready:not([data-reduced-motion="true"]) #case-corner > i::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--crop-image) var(--crop-position) / var(--crop-size) no-repeat;
+    animation-name: transfer-pigment;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-duration: auto;
+    animation-timeline: scroll(root block);
+    animation-range: var(--leave) var(--land);
+  }
+  html.transfer-ready.intro-playing #case-corner { visibility: hidden; }
+  html.transfer-ready[data-case-transfer]:not(.case-departed):not([data-reduced-motion="true"]) #case-corner {
+    visibility: hidden;
+  }
+  html.transfer-ready[data-case-transfer="sampled"]:not([data-reduced-motion="true"]) #case-corner > i,
+  html.transfer-ready[data-case-transfer="sampled"]:not([data-reduced-motion="true"]) #case-corner > i::before {
+    animation-timeline: auto;
+    animation-duration: 1s;
+    animation-delay: var(--transfer-delay, 0s);
+    animation-play-state: paused;
+  }
+}
+@keyframes transfer-horizontal {
+  from { transform: translateX(var(--dx)) scale(var(--source-scale)); }
+  60% { transform: translateX(calc(var(--dx) * .31 + var(--bow))) scale(1.35); }
+  to { transform: translateX(0) scale(1); }
+}
+@keyframes transfer-vertical {
+  from { translate: 0 var(--dy); }
+  to { translate: 0 0; }
+}
+@keyframes transfer-pigment {
+  0%, 12% { opacity: 1; }
+  68%, 100% { opacity: 0; }
+}

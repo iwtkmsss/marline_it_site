@@ -6,6 +6,19 @@
   const activeAnimations = new Set();
   const notifyLayout = () => document.dispatchEvent(new Event('marline:layoutchange'));
 
+  const caseLink = document.querySelector('.case-link');
+  const viewer = document.getElementById('case-viewer');
+  if (caseLink && typeof viewer?.showModal === 'function') {
+    caseLink.setAttribute('aria-haspopup', 'dialog');
+    caseLink.addEventListener('click', event => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      viewer.querySelector('img').src = caseLink.href;
+      viewer.showModal();
+      viewer.scrollTop = 0;
+    });
+  }
+
   function animate(element, frames, options) {
     if (reducedMotion() || typeof element.animate !== 'function') return null;
     const animation = element.animate(frames, options);
@@ -98,6 +111,8 @@
   }
 
   if (header && menuButton && navigation && inner) {
+    header.dataset.navReady = 'true';
+    menuButton.hidden = false;
     navigation.addEventListener('toggle', event => {
       if (nativePopover && !header.classList.contains('is-measuring')) syncMenu(event.newState === 'open');
     });

@@ -6,12 +6,15 @@
     <meta name="description" content="Дизайнерський motion study Marline: піксельний персонаж і зв'язок бізнес-процесів.">
     <title>Marline — демонстрація руху</title>
     <script>
-      document.documentElement.dataset.version = new URLSearchParams(window.location.search).get('version') === 'b' ? 'b' : 'a';
+      const previousVersion = new URLSearchParams(location.search).get('version');
+      if (previousVersion === 'a' || previousVersion === 'b') {
+        location.replace(new URL('../../?version=' + previousVersion, location.href));
+      }
+      document.documentElement.dataset.version = 'a';
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/fonts/fonts.css">
     <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./transfer.css">
     <script src="./motion.js" defer></script>
   </head>
   <body>
@@ -67,6 +70,22 @@
           </div>
           <div class="portrait-signature" aria-hidden="true"><span></span>Характер у кожній деталі.</div>
         </div>
+      </section>
+
+      <section class="works shell" id="works" aria-labelledby="works-title">
+        <h2 id="works-title">Роботи</h2>
+        <a class="case-card" href="../previews/a-desktop.png" data-preview-b="../previews/b-desktop.png">
+          <div class="case-copy">
+            <h3>Дизайн-концепція Marline</h3>
+            <span class="case-action">Відкрити макет <span aria-hidden="true">↗</span></span>
+          </div>
+          <div class="case-image">
+            <img src="../previews/a-desktop.png" alt="" width="1440" height="3000">
+          </div>
+          <span id="case-corner" class="case-corner" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </span>
+        </a>
       </section>
 
       <section class="approach shell" id="approach" aria-labelledby="approach-title">
@@ -143,8 +162,13 @@
         </div>
       </section>
     </main>
-    <div class="motion-trail" id="motion-trail" aria-hidden="true"></div>
     <script>
+      if (document.documentElement.dataset.version === 'b') {
+        const card = document.querySelector('.case-card');
+        card.href = card.dataset.previewB;
+        card.querySelector('img').src = card.href;
+        card.querySelector('img').height = 1000;
+      }
       document.querySelectorAll('[data-version-link]').forEach(link => {
         if (link.dataset.versionLink === document.documentElement.dataset.version) link.setAttribute('aria-current', 'page');
       });

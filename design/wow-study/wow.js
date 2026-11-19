@@ -32,21 +32,22 @@
   root.dataset.scrollMotion = nativeScrollTimeline ? 'native' : 'static';
 
   // ---- Tunables (source-image pixels, milliseconds) ------------------------
-  const DURATION = 2000;            // assembly
+  const DURATION = 1400;            // assembly
   // Assembly timeline inside DURATION (ms). Depth 7 = 128×128 cells ≈ 10 source px.
   const QUAD = {
     depth: 7,
     base: 3,           // first visible grid: 8×8 cells (≈70 px on a 560 px portrait)
     origin: { x: 578, y: 470 }, // the first pixel appears on her face
-    pop: 240,          // the violet pixel appears
-    ripple: [280, 820], // base cells spread from the pixel, nearest first
-    appear: 200,       // one cell grows from violet into its colour
-    uniform: 900,      // every base cell splits in four
-    detail: [1000, 1480],      // then splits where the detail is, faster and faster (done before resolve)
-    blend: 150,        // children ease from the parent colour to their own
-    resolve: [1540, 1960],     // cells turn into real pixels one by one, no fading
+    pop: 150,          // the violet pixel appears
+    ripple: [170, 560], // base cells spread from the pixel, nearest first
+    appear: 140,       // one cell grows from violet into its colour
+    uniform: 620,      // every base cell splits in four
+    detail: [690, 1010],      // then splits where the detail is, faster and faster (done before resolve)
+    blend: 105,        // children ease from the parent colour to their own
+    resolve: [1070, 1380],     // cells turn into real pixels one by one, no fading
   };
-  const VIOLET = [103, 80, 234];
+  const accent = getComputedStyle(root).getPropertyValue('--assembly-rgb').trim();
+  const assemblyColor = accent ? accent.split(/\s+/).map(Number) : [103, 80, 234];
   const COLUMNS = 24;
   const STRAY = { column: 6, row: 17 };   // the shoulder highlight (viewer's left)
   const WANDER = { dx: -200, dy: -80 };   // where the stray tile waits, relative to its slot
@@ -55,9 +56,12 @@
   // Hand-drawn flipbook (frames/anim/, see frames/anim/CODEX_PROMPT.md).
   // Full frames shown one after another, like a sprite animation; null = the
   // original PNG. Every frame is auto-aligned to the original face on load.
-  const ANIM_DIR = './frames/anim/';
+  const frameDirectory = document.currentScript.dataset.frameDir;
+  const FRAME_DIR = frameDirectory ? new URL(frameDirectory, document.baseURI) : new URL('./frames/', document.currentScript.src);
+  const FRAME_EXTENSION = frameDirectory ? 'webp' : 'png';
   // Scene start: eye contact, a blink, then the original sideways look.
-  const ANIM_INTRO = [[0, '01'], [850, '02'], [920, '03'], [1020, '04'], [1090, null]];
+  const EYE_CONTACT = 520;
+  const ANIM_INTRO = [[0, '01'], [EYE_CONTACT, '02'], [590, '03'], [690, '04'], [760, null]];
   // Gust (ms after it starts). The hair settles back along the same frames it
   // rose through (w03 → w02 → w01), because w01 is the frame closest to the
   // original; Codex's own settle frames (w07–w13) never got back to the
@@ -75,14 +79,14 @@
   const PIXEL_GRID = { size: 8, offset: 1, changed: 24 };
   const FACE = { x: 578, y: 500, rx: 188, ry: 248 };
   const SCENE = {
-    blink: 850,        // eye contact holds, then she blinks and turns to the tile
-    hops: [1220, 1460], // the tile fidgets
-    jump: 1700,        // the tile jumps into its slot
-    jumpLength: 430,
-    handoff: 2250,     // relay pixel appears
-    gust: 2550,        // wind + ribbon
-    blink2: 3450,
-    end: 4450,
+    blink: EYE_CONTACT, // eye contact holds, then she blinks and turns to the tile
+    hops: [770],       // one hop before the tile jumps into its slot
+    jump: 990,
+    jumpLength: 300,
+    handoff: 1290,     // relay pixel appears
+    gust: 1360,        // wind + ribbon
+    blink2: 2260,
+    end: 1360 + GUST_LENGTH,
   };
   // Eye boxes in source pixels: [viewer-left eye, viewer-right eye].
   const EYES = [
@@ -91,8 +95,7 @@
   ];
   // Optional generated frames. Full portrait renders; only the eye areas are used.
   // If an AI edit shifted the face, nudge it here (in source pixels).
-  const FRAME_DIR = './frames/';
-  const FRAME_FILES = { viewer: 'eyes-viewer.png', half: 'eyes-half.png', closed: 'eyes-closed.png' };
+  const FRAME_FILES = { viewer: 'eyes-viewer', half: 'eyes-half', closed: 'eyes-closed' };
   const FRAME_ALIGN = { dx: 0, dy: 0 };
 
   const clamp = value => Math.min(1, Math.max(0, value));
@@ -476,7 +479,7 @@ self.onmessage = async ({ data }) => {
   function prepareFlipbook(names, reference, onFrame, onDone) {
     const w = reference.width;
     const h = reference.height;
-    const items = names.map(name => ({ name, url: new URL(`${ANIM_DIR}${name}.png`, document.baseURI).href }));
+    const items = names.map(name => ({ name, url: new URL(`anim/${name}.${FRAME_EXTENSION}`, FRAME_DIR).href }));
     const workerReady = 'Worker' in window && 'OffscreenCanvas' in window && 'createImageBitmap' in window;
     if (workerReady) {
       try {
@@ -588,7 +591,7 @@ self.onmessage = async ({ data }) => {
     const timeout = new Promise(resolve => setTimeout(() => resolve('timeout'), 2500));
     const [frames] = await Promise.race([
       Promise.all([
-        Promise.all(Object.entries(FRAME_FILES).map(async ([key, file]) => [key, await loadImage(FRAME_DIR + file)])),
+        Promise.all(Object.entries(FRAME_FILES).map(async ([key, file]) => [key, await loadImage(new URL(`${file}.${FRAME_EXTENSION}`, FRAME_DIR))])),
         firstReady,
       ]),
       timeout.then(() => [null]),
@@ -677,7 +680,7 @@ self.onmessage = async ({ data }) => {
       const fade = 1 - clamp((t - rippleStart) / QUAD.appear);
       const side = dot * popScale;
       context.globalAlpha = fade;
-      context.fillStyle = `rgb(${VIOLET.join(' ')})`;
+      context.fillStyle = `rgb(${assemblyColor.join(' ')})`;
       context.fillRect(snap(originX - side / 2), snap(originY - side / 2), snap(side), snap(side));
       context.globalAlpha = 1;
     }
@@ -728,7 +731,7 @@ self.onmessage = async ({ data }) => {
         const side = baseSize * (.18 + .82 * grow);
         const gap = Math.min(1.5, side * .1) * gapFade;
         const c = base.color;
-        context.fillStyle = mixColor(VIOLET, [c[index * 3], c[index * 3 + 1], c[index * 3 + 2]], smooth(clamp(local * 1.4)));
+        context.fillStyle = mixColor(assemblyColor, [c[index * 3], c[index * 3 + 1], c[index * 3 + 2]], smooth(clamp(local * 1.4)));
         const left = snap(x + (ix + .5) * baseSize - side / 2 + gap / 2);
         const top = snap(y + (iy + .5) * baseSize - side / 2 + gap / 2);
         context.fillRect(left, top, snap(side - gap), snap(side - gap));
@@ -993,12 +996,14 @@ self.onmessage = async ({ data }) => {
     if (!frame && !document.hidden) frame = requestAnimationFrame(tick);
   }
 
-  function startScene() {
+  function startScene(skipAssembly = root.classList.contains('case-departed')) {
     resetHandoff();
     sceneFlags = {};
-    sceneStart = clock;
+    // An early scroll can reach the shoulder before its entrance finishes.
+    // Start with the assembled picture if that part is already on its way.
+    sceneStart = skipAssembly ? clock - DURATION : clock;
     gustAt = -1e9;
-    run(clock + DURATION + SCENE.end);
+    run(sceneStart + DURATION + SCENE.end);
   }
 
   function startEntry() {
@@ -1020,11 +1025,13 @@ self.onmessage = async ({ data }) => {
       return;
     }
     const bounds = media.getBoundingClientRect();
-    if (bounds.bottom > 0 && bounds.top < window.innerHeight * .98) startEntry();
+    const visibleRatio = Math.min(.55, window.innerHeight * .55 / Math.max(1, bounds.height));
+    const visibleHeight = Math.min(innerHeight, bounds.bottom) - Math.max(0, bounds.top);
+    if (visibleHeight >= bounds.height * visibleRatio) startEntry();
     else if ('IntersectionObserver' in window) {
       entryObserver = new IntersectionObserver(entries => {
-        if (entries.some(entry => entry.isIntersecting)) startEntry();
-      }, { threshold: .08 });
+        if (entries.some(entry => entry.intersectionRatio >= visibleRatio)) startEntry();
+      }, { threshold: visibleRatio });
       entryObserver.observe(media);
     } else {
       entryStarted = true;
@@ -1086,7 +1093,7 @@ self.onmessage = async ({ data }) => {
       return path;
     });
     const length = layers[1].getTotalLength();
-    const DRAW = 1500;
+    const DRAW = 1050;
     const piece = .3;
     layers.forEach((path, index) => {
       const size = index === 2 ? piece * .55 : piece;
@@ -1112,13 +1119,13 @@ self.onmessage = async ({ data }) => {
       rect.setAttribute('width', String(size));
       rect.setAttribute('height', String(size));
       ribbonSvg.append(rect);
-      const reach = DRAW * Math.pow(at, .9) * .82 + 220;
+      const reach = DRAW * Math.pow(at, .9) * .82 + 140;
       rect.animate([
         { opacity: 0 },
         { opacity: .9, offset: .18 },
         { opacity: .9, offset: .6 },
         { opacity: 0 },
-      ], { duration: 1500, delay: reach, easing: 'ease-out', fill: 'both' })
+      ], { duration: 850, delay: reach, easing: 'ease-out', fill: 'both' })
         .finished.then(() => rect.remove(), () => rect.remove());
     }
 
@@ -1128,7 +1135,7 @@ self.onmessage = async ({ data }) => {
       { transform: 'translateY(6px)', color: '#6750ea', offset: .35 },
       { transform: 'translateY(-2px)', color: '#6750ea', offset: .65 },
       { transform: 'translateY(0)', color: 'inherit' },
-    ], { duration: 700, delay: DRAW - 120, easing: 'cubic-bezier(.3,.7,.3,1)' });
+    ], { duration: 480, delay: DRAW - 100, easing: 'cubic-bezier(.3,.7,.3,1)' });
   }
 
   // ---- Scroll trail (from motion.js) + relay pixel ---------------------------
@@ -1260,8 +1267,8 @@ self.onmessage = async ({ data }) => {
       toggle.disabled = systemMotion.matches;
     }
     if (note) note.textContent = systemMotion.matches ? 'Увімкнено в системі' : limited ? 'Рух зменшено' : '';
-    if (replayButton) replayButton.disabled = limited;
-    if (gustButton) gustButton.disabled = limited;
+    if (replayButton) replayButton.disabled = limited || !imageReady || !context;
+    if (gustButton) gustButton.disabled = limited || !imageReady || !context;
     if (limited) {
       entryStarted = true;
       entryObserver?.disconnect();
@@ -1282,6 +1289,7 @@ self.onmessage = async ({ data }) => {
     createTiles();
     await prepareAssets();
     imageReady = true;
+    updatePreference();
     measureCanvas();
     queueTrail();
     startWhenVisible();
@@ -1294,8 +1302,14 @@ self.onmessage = async ({ data }) => {
   replayButton?.addEventListener('click', () => {
     if (reduced() || !imageReady) return;
     entryStarted = true;
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    startScene();
+    // Keep the whole portrait in the viewport on mobile, where the copy sits above it.
+    const bounds = media.getBoundingClientRect();
+    const centered = window.scrollY + bounds.top - (window.innerHeight - bounds.height) / 2;
+    const pixel = document.querySelector('#case-corner > i');
+    const departure = pixel ? parseFloat(pixel.style.getPropertyValue('--leave')) : Infinity;
+    const beforeDeparture = Number.isFinite(departure) ? departure - 1 : centered;
+    window.scrollTo({ top: Math.max(0, Math.min(centered, beforeDeparture)), behavior: 'instant' });
+    startScene(false);
   });
   gustButton?.addEventListener('click', () => startGust(true));
 
@@ -1313,6 +1327,18 @@ self.onmessage = async ({ data }) => {
   });
 
   systemMotion.addEventListener('change', updatePreference);
+  document.addEventListener('marline:transferstart', () => {
+    if (sceneStart !== null && clock - sceneStart < DURATION) {
+      sceneStart = clock - DURATION;
+      activeUntil = sceneStart + DURATION + SCENE.end;
+      render();
+    }
+  });
+  document.addEventListener('marline:versionchange', () => {
+    // The ribbon path belongs to the old hero composition.
+    ribbonSvg?.replaceChildren();
+    measureCanvas();
+  });
   window.addEventListener('resize', () => {
     measureCanvas();
     queueTrail();
