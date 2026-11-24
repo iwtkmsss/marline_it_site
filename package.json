@@ -7,6 +7,6 @@
     "dev": "python -m http.server 8473 --bind 127.0.0.1",
     "build": "node scripts/build.mjs",
     "preview": "python -m http.server 8474 --bind 127.0.0.1 --directory dist",
-    "check": "node --check src/site.js && node --check src/motion.js && node --check scripts/build.mjs"
+    "check": "node --check src/site.js && node --check src/story.js && node --check src/motion.js && node --check scripts/build.mjs"
   }
 }
