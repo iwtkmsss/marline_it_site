@@ -10,3 +10,5 @@ Thumbs.db
 .playwright-cli/
 .playwright-mcp/
 output/
+design/ascii-study/poses/alt/
+design/ascii-study/poses/raw/

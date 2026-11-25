@@ -1,0 +1,127 @@
+:root {
+  --silver: #ddc5ab;
+  --ink: #24191a;
+  --muted: #58423c;
+  --line: #8a53434a;
+  --violet: #771d37;
+  --lilac: #d5a98d;
+  --pink: #e9aa9b;
+  --plum: #292528;
+  --display: var(--body);
+  --cream: #f7e4cf;
+  --graphite: #302b2c;
+  --assembly-rgb: 119 29 55;
+  --gutter: clamp(20px, 5.15vw, 80px);
+}
+
+.shell { width: calc(100% - 2 * var(--gutter)); }
+body { background: var(--silver); }
+/* Compact header laid over the first screen, so the hero gets the whole viewport. */
+.site-header { position: fixed; inset: 0 0 auto; z-index: 30; background: transparent; border-block-end: 1px solid transparent; }
+/* Past the first screen the bar gets a light, readable background on any section. */
+.site-header[data-solid] { background: #efe2d4; border-block-end-color: #8a534333; }
+@supports (backdrop-filter: blur(8px)) {
+  .site-header[data-solid] { background: #efe2d4f0; backdrop-filter: blur(10px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-reduced-motion="true"]) .site-header { transition: background-color 200ms, border-color 200ms; }
+}
+html { scroll-padding-top: 72px; }
+.header-inner { min-height: 64px; gap: 20px; }
+.wordmark { font-size: 26px; gap: 8px; min-height: 44px; }
+.brand-pixel { transform: scale(.82); transform-origin: center left; }
+.site-header.is-wide .main-nav { gap: 24px; font-size: 14px; }
+.header-action { align-items: center; min-height: 44px; padding: 8px 16px; font-size: 14px; }
+.wordmark, .footer-wordmark { letter-spacing: -.065em; font-weight: 700; }
+.header-action { border-color: #84514b; border-radius: 4px; }
+.header-action:hover { background: #eed5bd; }
+.main-nav { inset-inline-end: var(--gutter); border-radius: 4px; inset-block-start: clamp(68px, 8vw, 96px); inset-block-start: anchor(--menu-button bottom); }
+.site-header.is-wide .main-nav { inset-block-start: auto; }
+
+.hero {
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-block: 72px clamp(16px, 3vh, 32px);
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  gap: clamp(16px, 3vw, 45px);
+}
+/* The portrait is sized by the viewport height so the whole first screen fits. */
+.hero .portrait-stage { justify-self: end; inline-size: min(100%, calc(100svh - 110px)); }
+/* First screen: warm morning light on a photographic plate. */
+.hero-field {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background:
+    radial-gradient(ellipse at 83% 16%, #efd8ba, transparent 56%),
+    linear-gradient(142deg, #dec6aa, #d1ac90 79%, #bb8d74);
+}
+.hero-field::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url("/assets/backgrounds/film-light.webp") 85% 15% / cover no-repeat;
+  mix-blend-mode: multiply;
+  opacity: .16;
+}
+.hero h1 { font-size: clamp(40px, min(6.25vw, 10.5vh), 104px); font-weight: 700; line-height: 1.01; letter-spacing: -.05em; margin-block-end: 0; }
+.hero-description { color: #3f2c28; margin: clamp(16px, 3vh, 36px) 0 clamp(16px, 3vh, 28px); }
+.button { border-radius: 4px; }
+.button-primary:hover { background: #541728; box-shadow: none; }
+.portrait-stage { align-self: center; }
+.pixel-stage { inset: 6% 3% 12%; background: #ccad92; }
+.stage-pixel-two { right: 0; }
+.stage-pixel-four { background: #b97b69; }
+.wind-ribbon .ribbon-shadow { stroke: #771d37; }
+.wind-ribbon .ribbon-body { stroke: #a85864; }
+.wind-ribbon .route-pixel { fill: #771d37; }
+.wind-ribbon .route-pixel:nth-of-type(3n) { fill: #bd746e; }
+.wind-ribbon .route-pixel:nth-of-type(4n) { fill: #ead0b5; }
+
+.site-footer { display: block; padding: 0; margin: 0; color: var(--cream); background: #170d12; border: 0; --violet: #f2b3a8; }
+.footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px 40px; padding-block: 24px 16px; border-top: 1px solid #8e716653; }
+.footer-nav { display: flex; flex-wrap: wrap; gap: 0 24px; justify-self: center; font-size: 14px; }
+.footer-nav a { display: inline-flex; align-items: center; min-height: 44px; }
+.footer-nav a:hover, .back-top:hover { color: var(--violet); }
+.footer-inner .back-top { grid-area: 1 / 3; margin: 0; color: var(--cream); min-height: 44px; }
+.footer-bottom { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 8px 24px; border-top: 1px solid #8e716653; color: #d8c0b2; padding-top: 8px; }
+.footer-bottom .copyright { margin: 0; color: inherit; }
+.footer-bottom .motion-note, .footer-bottom .motion-toggle { color: inherit; }
+.case-viewer { width: min(1000px, 94vw); max-height: 90vh; max-height: 90dvh; padding: 0; border: 1px solid var(--line); background: var(--silver); color: var(--ink); }
+.case-viewer:modal { overscroll-behavior: contain; }
+.case-viewer::backdrop { background: #1e141acd; }
+.case-viewer header { display: flex; align-items: center; justify-content: space-between; gap: 16px; position: sticky; top: 0; padding: 8px 16px; background: var(--silver); border-bottom: 1px solid var(--line); }
+.case-viewer h2 { font-size: clamp(16px, 3vw, 24px); }
+.case-viewer button { min-height: 44px; border: 0; background: transparent; cursor: pointer; }
+.case-viewer img { display: block; width: 100%; height: auto; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; align-content: center; gap: clamp(8px, 2vh, 24px); padding-block-start: 68px; }
+  .hero h1 { font-size: clamp(34px, min(9vw, 6.4vh), 83px); }
+  .hero .portrait-stage { justify-self: center; inline-size: min(100%, 520px, 36svh); }
+}
+@media (max-width: 620px) {
+  .hero-field::before { background-position: 74% 10%; opacity: .13; }
+  .footer-inner { gap: 12px 24px; grid-template-columns: 1fr auto; }
+  .footer-inner .back-top { grid-area: 1 / 2; }
+  .footer-nav { grid-column: 1 / -1; justify-self: start; column-gap: 16px; }
+}
+
+/* Before hydration measures the row, wide screens already get the inline
+   navigation, so the header does not jump. Without JS small screens keep the
+   native popover menu. */
+@media (min-width: 900px) {
+  .site-header:not([data-nav-ready]) .site-navigation { margin-inline: auto; }
+  .site-header:not([data-nav-ready]) .menu-toggle { display: none; }
+  .site-header:not([data-nav-ready]) .header-action { display: inline-flex; }
+  .site-header:not([data-nav-ready]) .main-nav[popover] { position: static; display: flex; align-items: center; gap: 24px; inline-size: auto; max-inline-size: none; overflow: visible; margin: 0; padding: 0; border: 0; background: transparent; box-shadow: none; opacity: 1; translate: none; white-space: nowrap; font-size: 14px; }
+  .site-header:not([data-nav-ready]) .main-nav > li > a { min-block-size: 44px; font-size: inherit; }
+  .site-header:not([data-nav-ready]) .main-nav .menu-contact { display: none; }
+}
+/* No popover support: a plain wrapped list instead of a hidden menu. */
+@supports not selector(:popover-open) {
+  .site-header:not(.is-wide) .header-inner { flex-wrap: wrap; }
+  .site-header:not(.is-wide) .menu-toggle { display: none; }
+  .site-header:not(.is-wide) .main-nav { position: static; display: flex; flex-wrap: wrap; gap: 0 16px; inline-size: auto; padding: 0; border: 0; background: transparent; box-shadow: none; }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "marline-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-public.mjs",
+    "predev": "npm run sync",
+    "dev": "next dev -H 127.0.0.1 -p 8475",
+    "prebuild": "npm run sync",
+    "build": "next build",
+    "preview": "python -m http.server 8476 --bind 127.0.0.1 --directory out"
+  },
+  "dependencies": {
+    "next": "16.4.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  }
+}

@@ -1,0 +1,266 @@
+/* The page goes from a warm morning (hero) to night: the "Як ми працюємо"
+   section is day, the following sections (services, this site, questions,
+   contact) are night. Every section paints its own background; where
+   supported, a fixed backdrop crossfades between day and night instead.
+   "Як ми працюємо" is a pinned scene: a pixel diorama of the client's business
+   passes four states (chaos → blueprint → building → working) while a scanner
+   beam sweeps across it; the step text changes with it. It plays only while the
+   scene fills the screen and the visitor scrolls (view timeline `--process`,
+   range `contain`). Without pinning
+   all four states are shown side by side. */
+
+.act { position: relative; color: var(--ink); }
+.act:not(.hero-field) { background: var(--act-bg); }
+.act-process {
+  --act-bg: #e6dcd2;
+  --ink: #24191a;
+  --muted: #5c4a44;
+  --line: #8a534338;
+}
+.act-night {
+  --act-bg: #1a0e14;
+  --ink: #f7e4cf;
+  --muted: #d3bdb0;
+  --line: #d8b5a438;
+  --violet: #f3b0a6;
+}
+.act a:focus-visible, .act button:focus-visible, .act summary:focus-visible { outline-color: var(--violet); }
+
+/* ---- Fixed backdrop: day → night ------------------------------------------ */
+.backdrop { display: none; position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.backdrop-layer { position: absolute; inset: 0; opacity: 0; }
+.layer-dressing { opacity: 1; background: linear-gradient(170deg, #d6b498, #c79c81); }
+.layer-reading { background: #e6dcd2; }
+.layer-premiere { background: #1a0e14; }
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@supports ((animation-timeline: view()) and (animation-range: 0% 100%) and (timeline-scope: --a)) {
+  html { timeline-scope: --day, --night, --dusk; }
+  .backdrop { display: block; }
+  .act:not(.hero-field) { background: transparent; }
+  .act-process { view-timeline: --day block; }
+  #solutions { view-timeline: --night block; }
+  /* Colour crossfades, not spatial motion: they stay on with reduced motion. */
+  .backdrop-layer.layer-reading { animation: fade-in linear both; animation-timeline: --day; animation-range: entry 20% entry 70%; }
+  .backdrop-layer.layer-premiere { animation: fade-in linear both; animation-timeline: --night; animation-range: entry 10% entry 50%; }
+}
+/* story.js fallback: the section in the middle of the viewport picks the layer. */
+html.backdrop-fallback .backdrop { display: block; }
+html.backdrop-fallback .act:not(.hero-field) { background: transparent; }
+html.backdrop-fallback .backdrop-layer.is-shown { opacity: 1; }
+html.backdrop-fallback .backdrop-layer { transition: opacity 600ms ease; }
+
+/* ---- How we work: the diorama scene ------------------------------------- */
+.process-scene {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 4vw, 72px);
+  padding-block: clamp(88px, 11vw, 150px);
+}
+.act h2 {
+  margin: 0;
+  font-size: clamp(30px, min(4.4vw, 7vh), 64px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.process-note { margin: 16px 0 0; max-inline-size: 30em; color: var(--muted); font-size: 16px; line-height: 1.6; }
+.phases { display: grid; gap: 32px; margin: clamp(24px, 4vh, 40px) 0 0; padding: 0; list-style: none; }
+.phase { padding-block-start: 16px; border-block-start: 2px solid var(--ink); }
+.phase h3 { margin: 0 0 12px; font-size: clamp(24px, 2vw, 28px); font-weight: 600; line-height: 1.15; letter-spacing: -.02em; }
+.phase-number { display: block; margin-block-end: 8px; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--muted); }
+.phase > p { margin: 0; max-inline-size: 32em; color: var(--muted); font-size: 16px; line-height: 1.6; }
+.phase > .phase-result { margin-block-start: 16px; color: var(--ink); }
+.phase-result > span { display: block; margin-block-end: 4px; color: var(--muted); font-size: 14px; }
+
+.diorama { margin: 0; justify-self: center; inline-size: 100%; }
+.diorama-frame { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dio { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; }
+/* The scanner beam: a thin bright line with a soft glow. */
+.scan-beam { display: none; position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0; }
+.scan-beam::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: -2px;
+  inline-size: 3px;
+  background: #fff4e2;
+  box-shadow: 0 0 12px 2px #ffd9a088;
+}
+
+@keyframes dusk-ink {
+  from { color: #24191a; }
+  to { color: #f7e4cf; }
+}
+@keyframes reveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes beam-sweep {
+  0%, 22% { translate: 0 0; opacity: 0; }
+  22.5% { opacity: 1; }
+  30% { translate: 100% 0; opacity: 1; }
+  30.5%, 47% { translate: 0 0; opacity: 0; }
+  47.5% { opacity: 1; }
+  55% { translate: 100% 0; opacity: 1; }
+  55.5%, 72% { translate: 0 0; opacity: 0; }
+  72.5% { opacity: 1; }
+  80% { translate: 100% 0; opacity: 1; }
+  80.5%, 100% { translate: 100% 0; opacity: 0; }
+}
+@keyframes phase-first {
+  0%, 82% { opacity: 1; translate: 0 0; }
+  100% { opacity: 0; translate: 0 -14px; }
+}
+@keyframes phase-middle {
+  0% { opacity: 0; translate: 0 14px; }
+  18%, 82% { opacity: 1; translate: 0 0; }
+  100% { opacity: 0; translate: 0 -14px; }
+}
+@keyframes phase-last {
+  0% { opacity: 0; translate: 0 14px; }
+  18%, 100% { opacity: 1; translate: 0 0; }
+}
+
+/* Pinning and the whole scene share one switch. */
+@media (prefers-reduced-motion: no-preference) and (min-height: 520px) {
+  @supports ((animation-timeline: view()) and (animation-range: 0% 100%) and (timeline-scope: --a)) {
+    html:not([data-reduced-motion="true"]) .process-pin { view-timeline: --process block, --dusk block; block-size: 420vh; block-size: 420svh; }
+    html:not([data-reduced-motion="true"]) .act-process { padding: 0; }
+    html:not([data-reduced-motion="true"]) .process-scene {
+      position: sticky;
+      inset-block-start: 0;
+      block-size: 100vh;
+      block-size: 100svh;
+      padding-block: clamp(76px, 10vh, 96px) clamp(20px, 4vh, 40px);
+    }
+    html:not([data-reduced-motion="true"]) .process-note { display: none; }
+    html:not([data-reduced-motion="true"]) .diorama { inline-size: min(100%, calc((100svh - 140px) * 4 / 3)); }
+    /* One step at a time. */
+    html:not([data-reduced-motion="true"]) .phases { gap: 0; }
+    html:not([data-reduced-motion="true"]) .phase { grid-area: 1 / 1; animation: phase-middle linear both; animation-timeline: --process; }
+    html:not([data-reduced-motion="true"]) .phase-1 { animation-name: phase-first; animation-range: contain 0% contain 24%; }
+    html:not([data-reduced-motion="true"]) .phase-2 { animation-range: contain 25% contain 49%; }
+    html:not([data-reduced-motion="true"]) .phase-3 { animation-range: contain 50% contain 74%; }
+    html:not([data-reduced-motion="true"]) .phase-4 { animation-name: phase-last; animation-range: contain 75% contain 100%; }
+    /* Dusk: the page darkens together with the diorama, halfway through. */
+    html:not([data-reduced-motion="true"]) .backdrop-layer.layer-premiere { animation: fade-in linear both; animation-timeline: --dusk; animation-range: contain 48% contain 50%; }
+    html:not([data-reduced-motion="true"]) #process-title { animation: dusk-ink linear both; animation-timeline: --process; animation-range: contain 48.8% contain 49.2%; }
+    html:not([data-reduced-motion="true"]) :is(.phase-3, .phase-4) { --ink: #f7e4cf; --muted: #d3bdb0; color: var(--ink); }
+    /* The scanner reveals each next state of the diorama. */
+    html:not([data-reduced-motion="true"]) .diorama-frame { display: block; position: relative; overflow: clip; aspect-ratio: 4 / 3; border-radius: 8px; background: #e8b99b; box-shadow: 0 30px 60px -40px #4a2d24aa; }
+    html:not([data-reduced-motion="true"]) .dio { position: absolute; inset: 0; block-size: 100%; border-radius: 0; }
+    html:not([data-reduced-motion="true"]) :is(.dio-2, .dio-3, .dio-4) { clip-path: inset(0 100% 0 0); animation: reveal linear both; animation-timeline: --process; }
+    html:not([data-reduced-motion="true"]) .dio-2 { animation-range: contain 22% contain 30%; }
+    html:not([data-reduced-motion="true"]) .dio-3 { animation-range: contain 47% contain 55%; }
+    html:not([data-reduced-motion="true"]) .dio-4 { animation-range: contain 72% contain 80%; }
+    html:not([data-reduced-motion="true"]) .scan-beam { display: block; animation: beam-sweep linear both; animation-timeline: --process; animation-range: contain 0% contain 100%; }
+  }
+}
+
+/* ---- Night sections --------------------------------------------------------- */
+.act-night:not(.section-contact) { padding-block: clamp(80px, 9vw, 128px) 0; }
+.section-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 16px clamp(32px, 5vw, 88px);
+  margin-block-end: clamp(32px, 4vw, 48px);
+}
+.section-intro > p { margin: 0; max-inline-size: 460px; color: var(--muted); font-size: 16px; line-height: 1.6; }
+.section-solutions .service-body > p { color: var(--muted); }
+/* Questions: the heading sits beside the screenplay page. */
+@media (min-width: 901px) {
+  .section-questions { display: grid; grid-template-columns: minmax(0, .5fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 88px); align-items: start; }
+  .section-questions .section-intro { grid-template-columns: minmax(0, 1fr); gap: 24px; margin: 0; }
+}
+
+.section-solutions .service-list { border-top-color: var(--line); }
+.section-solutions .service-symbol i { background: #e3a596; }
+.section-solutions .service-symbol i:nth-child(3) { background: #8c6a62; }
+.section-solutions .symbol-connect i:nth-child(2), .section-solutions .symbol-evolve i:nth-child(1) { background: #8c6a62; }
+.section-solutions .symbol-connect i:nth-child(3), .section-solutions .symbol-evolve i:nth-child(3) { background: #e3a596; }
+.section-solutions .service-examples li::before { background: #e3a596; }
+
+.board { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(150px, .34fr); gap: clamp(16px, 2vw, 24px); }
+.board-frame {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: #f9f4ee;
+  color: #24191a;
+  box-shadow: 0 24px 44px -28px #000c;
+}
+.board-frame img { display: block; inline-size: 100%; aspect-ratio: 16 / 10; block-size: auto; object-fit: cover; object-position: 50% var(--frame-y, 0%); border-radius: 4px; }
+.board-frame-phone img { flex: 1; min-block-size: 0; block-size: 0; aspect-ratio: auto; }
+.frame-caption { padding: 12px 4px 4px; font-size: 14px; font-weight: 500; }
+a.board-frame:hover .frame-caption { text-decoration: underline; text-underline-offset: .3em; }
+
+.script-page {
+  position: relative;
+  padding: clamp(32px, 4vw, 64px) clamp(20px, 4vw, 64px) clamp(24px, 3vw, 48px);
+  background: #fcf8f2;
+  color: #24191a;
+  font-family: "Courier New", Courier, monospace;
+  box-shadow: 0 34px 60px -36px #000c;
+  --line: #24191a1f;
+  --violet: #771d37;
+  --muted: #5c4a44;
+}
+.script-page::before { content: "1."; position: absolute; inset-block-start: clamp(12px, 2vw, 32px); inset-inline-end: clamp(20px, 3vw, 40px); font-size: 14px; }
+.script-slug { margin: 0 0 16px; font-size: 16px; font-weight: 700; text-transform: uppercase; }
+.script-action { max-inline-size: 60ch; margin: 0 0 24px; font-size: 16px; line-height: 1.6; }
+.line { border-bottom: 1px dashed var(--line); }
+.line summary,
+.line-answer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 30em) minmax(0, 1fr);
+  column-gap: 16px;
+}
+.line summary { padding-block: 20px; }
+.line-who { grid-column: 2; text-align: center; font-size: 14px; font-weight: 700; text-transform: uppercase; }
+.line-text, .line-answer p { grid-column: 2; margin: 4px 0 0; font-size: 16px; line-height: 1.6; }
+.line .disclosure-icon { grid-column: 3; grid-row: 1 / 3; align-self: center; justify-self: end; }
+.line summary:hover .line-text { color: var(--violet); }
+.line-answer { padding-block: 4px 24px; }
+
+.section-contact { padding-block: clamp(96px, 11vw, 160px); text-align: center; }
+.contact-inner h2 { max-inline-size: 16ch; margin-inline: auto; font-size: clamp(36px, 5vw, 72px); }
+.contact-stub { margin: 24px 0 0; color: var(--muted); font-size: 18px; }
+
+/* ---- Responsive ------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .process-scene { grid-template-columns: minmax(0, 1fr); }
+  .section-intro { grid-template-columns: minmax(0, 1fr); }
+  .board { grid-template-columns: minmax(0, 1fr); }
+  .board-frame-phone { inline-size: min(60%, 260px); }
+  .board-frame-phone img { flex: none; block-size: auto; }
+}
+@media (max-width: 900px) and (prefers-reduced-motion: no-preference) and (min-height: 520px) {
+  @supports ((animation-timeline: view()) and (animation-range: 0% 100%) and (timeline-scope: --a)) {
+    html:not([data-reduced-motion="true"]) .process-scene { display: flex; flex-direction: column; justify-content: center; gap: clamp(16px, 3vh, 28px); }
+    html:not([data-reduced-motion="true"]) .act h2 { font-size: clamp(26px, 7vw, 40px); }
+    html:not([data-reduced-motion="true"]) .phases { margin-block-start: clamp(12px, 2.4vh, 24px); }
+    html:not([data-reduced-motion="true"]) .diorama { inline-size: 100%; }
+  }
+}
+@media (max-width: 620px) {
+  .script-page { padding-inline: 20px; }
+  .line summary, .line-answer { grid-template-columns: minmax(0, 1fr) 22px; column-gap: 12px; }
+  .line-who, .line-text, .line-answer p { grid-column: 1; text-align: start; }
+  .line .disclosure-icon { grid-column: 2; }
+}
+/* Short phones: the pinned scene must clear the header. */
+@media (max-width: 900px) and (max-height: 700px) and (min-height: 520px) and (prefers-reduced-motion: no-preference) {
+  html:not([data-reduced-motion="true"]) .process-scene { padding-block: 72px 12px; gap: 12px; }
+  html:not([data-reduced-motion="true"]) .phase > p { font-size: 14px; line-height: 1.45; }
+  html:not([data-reduced-motion="true"]) .phase > .phase-result { margin-block-start: 8px; }
+  html:not([data-reduced-motion="true"]) .process-scene .diorama { inline-size: min(100%, calc(29svh * 4 / 3)); }
+}
