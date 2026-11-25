@@ -46,7 +46,8 @@ npm run preview   # http://127.0.0.1:8476, потребує Python
 - `app/layout.jsx` підключає стилі `web/styles/` у порядку fonts → site → wow → marline → story; `app/page.jsx` складає секції з `components/`. Усі тексти списків — у `lib/content.js`.
 - `scripts/sync-public.mjs` копіює фіксований список публічних файлів з `assets/` у `web/public/assets/` (не в git). Новий публічний файл додай туди.
 - `components/Header.jsx` вимірює рядок навігації й перемикає інлайн/popover. `Backdrop.jsx` має fallback фону. `Works.jsx` — діалог макета. Діорама — чистий CSS.
-- `lib/hero-scene.js` — рушій портрета (порт `wow.js`). Він працює з вузлами за id (`Hero.jsx`, перемикач руху у `Footer.jsx`), тому React не має їх перерендерювати.
+- Головна (`/`) показує ASCII-портрет: `components/AsciiPortrait.jsx`, `lib/ascii-scene.js` + `ascii-shaders.js` (WebGL2: 13 ракурсів × 4 шари, рух голови, кліпання, погляд без курсора). Ресурси збирає `design/ascii-study/build.py`. `lib/ascii-dissolve.js` під час прокрутки розсипає символи й складає з них першу картинку діорами; годинник — лише позиція прокрутки, завершується за 80 px до секції (відступ якоря). Без WebGL, у reduced motion чи без закріпленої діорами лишається звичайний перехід.
+- `/pixel` — попередній піксельний портрет для порівняння. `lib/hero-scene.js` — його рушій (порт `wow.js`). Він працює з вузлами за id (`Hero.jsx`, перемикач руху у `Footer.jsx`), тому React не має їх перерендерювати.
 - Мініфікатор скорочує `animation-range`; після змін перевіряй обчислені діапазони у зібраній версії.
 
 ## Архітектура статичної версії

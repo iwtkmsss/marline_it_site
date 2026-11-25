@@ -157,6 +157,10 @@ export async function startAsciiScene({ stage, canvas, getReduced, isCancelled, 
   let returnTimer = 0;
   let visible = true;
   let disposed = false;
+  let gone = 0;
+  let calm = false; // slow turns while nobody moves the pointer
+  let idleTimer = 0;
+  let glance = 0;
 
   function resize() {
     const size = stage.clientWidth;
@@ -236,6 +240,7 @@ export async function startAsciiScene({ stage, canvas, getReduced, isCancelled, 
     gl.uniform2f(printer.at('grid'), cols, rows);
     gl.uniform2f(printer.at('cell'), w, h);
     gl.uniform1f(printer.at('height'), canvas.height);
+    gl.uniform1f(printer.at('gone'), gone);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     gl.activeTexture(gl.TEXTURE0);
   }
@@ -262,7 +267,7 @@ export async function startAsciiScene({ stage, canvas, getReduced, isCancelled, 
       const elapsed = Math.min(last ? now - last : 16, 50) / 1000;
       const steps = Math.max(1, Math.ceil(elapsed * 240));
       for (let i = 0; i < steps; i++) {
-        spring(face, target, 62, 14.5, elapsed / steps);
+        spring(face, target, calm ? 16 : 62, calm ? 7.6 : 14.5, elapsed / steps);
         // Curls follow the head a little late and settle with a soft overshoot.
         spring(hair, face, 190, 19, elapsed / steps);
       }
@@ -295,24 +300,121 @@ export async function startAsciiScene({ stage, canvas, getReduced, isCancelled, 
     }, 3200 + Math.random() * 3800);
   }
 
-  function look(event) {
-    if (getReduced() || !visible) return;
+  // Turns the head towards a point of the viewport.
+  function aim(clientX, clientY) {
     const rect = stage.getBoundingClientRect();
-    const x = (event.clientX - (rect.left + rect.width * .5)) / (rect.width * .75);
-    const y = (event.clientY - (rect.top + rect.height * .38)) / (rect.height * .62);
+    const x = (clientX - (rect.left + rect.width * .5)) / (rect.width * .75);
+    const y = (clientY - (rect.top + rect.height * .38)) / (rect.height * .62);
     // Soft limit: the head slows towards its extreme instead of hitting a wall.
     const length = Math.hypot(x, y);
     const eased = length ? Math.tanh(length * 1.15) / length : 0;
     target.x = x * eased;
     target.y = y * eased * (y > 0 ? .78 : .92);
-    clearTimeout(returnTimer);
-    if (event.pointerType === 'touch') returnTimer = setTimeout(center, 1400);
     request();
   }
+  function aimAt(element) {
+    const rect = element?.getBoundingClientRect();
+    if (!rect?.width || rect.bottom < 0 || rect.top > window.innerHeight) return false;
+    aim(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    return true;
+  }
+  const awake = () => visible && !gone && !document.hidden && !getReduced();
+
+  function look(event) {
+    if (!awake()) return;
+    calm = false;
+    clearTimeout(returnTimer);
+    aim(event.clientX, event.clientY);
+    if (event.pointerType === 'touch') returnTimer = setTimeout(center, 1400);
+    scheduleIdle(event.pointerType === 'touch' ? 5000 : 7000);
+  }
   function center() {
+    if (gone) return;
     target.x = target.y = 0;
     request();
   }
+  function pose(x, y) {
+    target.x = x;
+    target.y = y;
+    request();
+    return true;
+  }
+
+  // With no pointer to follow she looks around the page: the heading, the
+  // visitor, the buttons. "Менше руху" in the footer switches this off.
+  const glances = [
+    () => aimAt(document.getElementById('hero-title')),
+    () => pose(0, 0),
+    () => aimAt(document.querySelector('.hero .button-primary')),
+    () => pose(.3, -.22),
+    () => pose(0, 0),
+    () => aimAt(document.querySelector('.hero .text-link')),
+    () => pose(-.38, .1),
+    () => pose(0, 0),
+  ];
+  function idle() {
+    if (awake()) {
+      calm = true;
+      for (let i = 0; i < glances.length; i++) {
+        glance = (glance + 1) % glances.length;
+        if (glances[glance]()) break;
+      }
+    }
+    scheduleIdle(2600 + Math.random() * 2600);
+  }
+  function scheduleIdle(delay) {
+    clearTimeout(idleTimer);
+    if (!disposed) idleTimer = setTimeout(idle, delay);
+  }
+  // Keyboard users get her attention too.
+  function focused(event) {
+    if (!awake() || !event.target.matches?.(':focus-visible')) return;
+    calm = true;
+    if (aimAt(event.target)) scheduleIdle(5000);
+  }
+  // Without a mouse a scroll makes her follow the page.
+  const touchOnly = window.matchMedia('(hover: none)');
+  let scrolled = window.scrollY;
+  function scrolling() {
+    const step = window.scrollY - scrolled;
+    scrolled = window.scrollY;
+    if (!awake() || !touchOnly.matches || Math.abs(step) < 2) return;
+    calm = true;
+    pose(target.x * .6, step > 0 ? .5 : -.35);
+    scheduleIdle(1100);
+  }
+
+  // ---- used by the dissolve ------------------------------------------------
+  function setGone(value) {
+    if (value === gone) return;
+    if (!gone) Object.assign(target, { x: face.x, y: face.y });
+    gone = value;
+    if (!gone) scheduleIdle(1200);
+    request();
+  }
+  // One record per character: cell x, y, colour (4), glyph, spare.
+  function snapshot() {
+    if (!layout) return new Float32Array(0);
+    const { cols, rows, imageWidth, imageHeight } = layout;
+    const picks = new Uint8Array(cols * rows * 4);
+    const image = new Uint8Array(imageWidth * imageHeight * 4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, pickTarget);
+    gl.readPixels(0, 0, cols, rows, gl.RGBA, gl.UNSIGNED_BYTE, picks);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, imageTarget);
+    gl.readPixels(0, 0, imageWidth, imageHeight, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    const records = [];
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const at = ((y * 6 + 3) * imageWidth + x * 4 + 2) * 4;
+        const alpha = image[at + 3];
+        if (alpha < 128) continue;
+        records.push(x, y, image[at] / alpha, image[at + 1] / alpha, image[at + 2] / alpha, 1, picks[(y * cols + x) * 4], 0);
+      }
+    }
+    return new Float32Array(records);
+  }
+
   function leave(event) {
     if (!event.relatedTarget && event.pointerType !== 'touch') center();
   }
@@ -336,6 +438,7 @@ export async function startAsciiScene({ stage, canvas, getReduced, isCancelled, 
     cancelAnimationFrame(frame);
     clearTimeout(blinkTimer);
     clearTimeout(returnTimer);
+    clearTimeout(idleTimer);
     listeners.abort();
     resizer.disconnect();
     viewer.disconnect();
@@ -348,9 +451,12 @@ export async function startAsciiScene({ stage, canvas, getReduced, isCancelled, 
   window.addEventListener('pointerdown', look, options);
   document.addEventListener('pointerout', leave, options);
   window.addEventListener('blur', center, options);
+  window.addEventListener('scroll', scrolling, options);
+  document.addEventListener('focusin', focused, options);
   document.addEventListener('marline:motionchange', request, options);
   canvas.addEventListener('webglcontextlost', lost, options);
   onReady();
   scheduleBlink();
-  return dispose;
+  scheduleIdle(3500);
+  return { dispose, setGone, snapshot, glyphSheet, grid: () => ({ cols: layout.cols, rows: layout.rows }) };
 }

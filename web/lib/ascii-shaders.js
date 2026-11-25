@@ -94,7 +94,7 @@ export const QUAD = `#version 300 es
 void main() { gl_Position = vec4(vec2(gl_VertexID & 1, gl_VertexID >> 1) * 4. - 1., 0, 1); }`;
 
 // Cool platinum grade shared by both glyph passes.
-const GRADE = `
+export const GRADE = `
 float luma(vec3 c) { return dot(c, vec3(.299, .587, .114)); }
 vec3 grade(vec3 c) {
   float l = luma(c);
@@ -103,6 +103,13 @@ vec3 grade(vec3 c) {
   c *= mix(vec3(.955, .985, 1.13), vec3(.98, .92, 1.1), smoothstep(.45, .7, s));
   c = mix(c, vec3(l) * vec3(1.0, .985, 1.04), (.10 + .4 * hair) * step(c.b, c.r * 1.25));
   return clamp((c - .5) * 1.14 + .515, 0., 1.);
+}`;
+
+// When a character leaves the portrait: 0 in place, 1 landed in the diorama.
+export const CELL_DELAY = `
+float cellTime(vec2 cell, vec2 grid, float gone) {
+  float h = fract(sin(dot(cell, vec2(12.9898, 78.233))) * 43758.5453);
+  return clamp((gone - (cell.y / grid.y * .55 + h * .45) * .58) / .42, 0., 1.);
 }`;
 
 export const PICK = `#version 300 es
@@ -146,13 +153,15 @@ export const PRINT = `#version 300 es
 precision highp float;
 uniform sampler2D image, picks, glyphs;
 uniform vec2 grid, cell;
-uniform float height;
+uniform float height, gone;
 out vec4 o;
 ${GRADE}
+${CELL_DELAY}
 void main() {
   vec2 px = vec2(gl_FragCoord.x, height - gl_FragCoord.y);
   vec2 at = px / cell;
   vec2 id = floor(at);
+  if (gone > 0. && cellTime(id, grid, gone) > 0.) { o = vec4(0); return; }
   vec4 fine = texture(image, (floor(at * vec2(4, 6)) + .5) / vec2(4, 6) / grid);
   if (fine.a < .5) { o = vec4(0); return; }
   vec4 broad = texture(image, (id + .5) / grid);
