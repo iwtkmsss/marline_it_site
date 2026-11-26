@@ -1,0 +1,47 @@
+@media (min-width: 901px) {
+  .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); }
+}
+/* The bust stands on the bottom edge of the first screen. */
+.hero .ascii-portrait-stage {
+  align-self: end;
+  padding: 0;
+  margin-block-end: calc(-1 * clamp(16px, 3vh, 32px));
+  inline-size: min(100%, 720px, calc(100vh - 100px));
+  inline-size: min(100%, 720px, calc(100svh - 100px));
+}
+.ascii-portrait {
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: 1;
+}
+.ascii-portrait > img,
+.ascii-portrait > canvas {
+  position: absolute;
+  inset-block: auto 0;
+  inset-inline: 50% auto;
+  max-inline-size: none;
+  translate: -50% 0;
+}
+.ascii-portrait > img { inline-size: 100%; block-size: 100%; }
+.ascii-portrait > canvas { visibility: hidden; pointer-events: none; }
+.ascii-portrait[data-live] > img { opacity: 0; }
+.ascii-portrait[data-live] > canvas { visibility: visible; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-rows: auto 1fr; align-content: stretch; }
+  .hero .ascii-portrait-stage {
+    inline-size: min(100%, 520px, 42vh);
+    inline-size: min(100%, 520px, 42svh);
+  }
+}
+
+/* Characters on their way from the portrait to the diorama (ascii-dissolve.js). */
+.ascii-dissolve {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+}
+[data-dissolve] .diorama-frame { opacity: var(--assembled, 1); }
